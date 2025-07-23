@@ -1,0 +1,26 @@
+extern proc outInt(int out);
+extern proc outChar(int out);
+extern int func in();
+extern proc print(str s);
+
+int func fibTail(int a, int b, int i, int n){
+	if( i = n ){
+		return a;
+	}
+	return fibTail(b, a+b, i+1, n);
+}
+
+int func fib(int n){
+	return fibTail(0, 1, 0, n);
+}
+
+int func program(){
+	print("Which fibinochi number do you want?");
+	outChar(10);
+	int x;
+	x <- in();
+	x <- fib(x);
+	print("The fibinochi number is: ");
+	outInt(x);
+	return 5;
+}

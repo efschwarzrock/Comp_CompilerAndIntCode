@@ -1,0 +1,496 @@
+extern int func in();
+extern proc outChar(int out);
+extern proc print(str s);
+
+int[100] map;
+int wall <- 35;
+int air <- 32;
+int newLine <- 10;
+
+
+int pl <- 60;
+int pr <- 62;
+int pu <- 94;
+int pd <- 118;
+int deadChar <- 88;
+int pdir <- 0;
+int px <- 1;
+int py <- 1;
+
+int bChar <- 79;
+int bdir <- 10;
+int bx <- 0;
+int by <- 0;
+
+int monsterChar <- 87;
+int[5] mx;
+int[5] my;
+boolean[5] mAlive;
+int[5] mdir;
+int[5] mpath;
+int[5] mChange;
+
+int stepCounter <- 0;
+boolean done <- false;
+boolean dead <- false;
+boolean won <- false;
+
+
+int func getValue(int r, int c){
+	int i;
+	i <- r*10 + c;
+	return map[i];
+}
+
+proc setValue(int r, int c, int v){
+	int i;
+	i <- r*10 + c;
+	map[i] <- v;
+	return;
+}
+
+int func roundAdd(int dir){
+	if(dir = 3){
+		return 0;
+	}
+	return dir + 1;
+}
+
+int func roundSub(int dir){
+	if(dir = 0){
+		return 3;
+	}
+	return dir - 1;
+}
+
+boolean func hasMonster(int x, int y){
+	int i <- 0;
+	while i < mx.length do {
+		if(mx[i] = x & my[i] = y & mAlive[i]){
+			return true;
+		}
+		i <- i + 1;
+	}
+	return false;
+}
+
+proc makeMap(){
+	int i <- 0;
+	while i < 10 do {
+		setValue(i, 0, wall);
+		setValue(i, 9, wall);
+		setValue(9, i, wall);
+		setValue(0, i, wall);
+		i <- i + 1;
+	}
+
+	i <- 1;
+	while i < 9 do {
+		int j <- 1;
+		while j < 9 do {
+			setValue(i, j, air);
+			j <- j + 1;
+		}
+		i <- i + 1;
+	}
+	setValue(1, 4, wall);
+	setValue(1, 5, wall);
+	setValue(2, 2, wall);
+	setValue(2, 7, wall);
+	setValue(3, 4, wall);
+	setValue(3, 5, wall);
+	setValue(3, 7, wall);
+	setValue(4, 1, wall);
+	setValue(4, 2, wall);
+	setValue(5, 1, wall);
+	setValue(5, 2, wall);
+	setValue(5, 4, wall);
+	setValue(5, 5, wall);
+	setValue(5, 6, wall);
+	setValue(5, 8, wall);
+	setValue(6, 5, wall);
+	setValue(7, 2, wall);
+	setValue(7, 3, wall);
+	setValue(7, 7, wall);
+	setValue(8, 5, wall);
+	return;
+}
+
+proc makeMonsters(){
+	mx[0] <- 8;
+	my[0] <- 8;
+	mAlive[0] <- true;
+	mdir[0] <- 3;
+	mpath[0] <- 0;
+	mChange[0] <- 20;
+
+	mx[1] <- 7;
+	my[1] <- 5;
+	mAlive[1] <- true;
+	mdir[1] <- 1;
+	mpath[1] <- 0;
+	mChange[1] <- 3;
+
+	mx[2] <- 4;
+	my[2] <- 7;
+	mAlive[2] <- true;
+	mdir[2] <- 2;
+	mpath[2] <- 1;
+	mChange[2] <- 4;
+
+	mx[3] <- 8;
+	my[3] <- 2;
+	mAlive[3] <- true;
+	mdir[3] <- 3;
+	mpath[3] <- 0;
+	mChange[3] <- 5;
+
+	mx[4] <- 1;
+	my[4] <- 8;
+	mAlive[4] <- true;
+	mdir[4] <- 0;
+	mpath[4] <- 0;
+	mChange[4] <- 7;
+
+	return;
+}
+
+boolean func printMonster(int x, int y){
+	if(hasMonster(x, y)){
+		outChar(monsterChar);
+		return true;
+	}
+	return false;
+}
+
+proc printPlayer(){
+	if(dead){
+		outChar(deadChar);
+		return;
+	}
+	select	{
+		pdir = 0 : outChar(pd);
+		pdir = 1 : outChar(pl);
+		pdir = 2 : outChar(pu);
+		pdir = 3 : outChar(pr);
+	}
+	return;
+}
+
+proc printMap(){
+	int i <- 0;
+	while i < 10 do {
+		int j <- 0;
+		while j < 10 do {
+			if( ~printMonster(j, i)){
+				if(px = j & py = i){
+					printPlayer();
+				}else{
+					if(bdir ~= 10 & bx = j & by = i){
+						outChar(bChar);
+					}else{
+						int v;
+						v <- getValue(j, i);
+						outChar(v);
+					}
+				}
+			}
+			j <- j + 1;
+		}
+		outChar(newLine);
+		i <- i + 1;
+	}
+	return;
+}
+
+boolean func tryMove(int i, int dir){
+
+	if(dir = 3){#right - x increases
+		if(getValue(mx[i] + 1, my[i]) = air & ~hasMonster(mx[i] + 1, my[i])){
+			mx[i] <- mx[i] + 1;
+			return true;
+		}
+	}
+
+	if(dir = 2){#up - y decreases
+		if(getValue(mx[i], my[i]-1) = air & ~hasMonster(mx[i], my[i]-1)){
+			my[i] <- my[i] - 1;
+			return true;
+		}
+	}
+
+	if(dir = 1){#left - x decreases
+		if(getValue(mx[i] - 1, my[i]) = air & ~hasMonster(mx[i] - 1, my[i])){
+			mx[i] <- mx[i] - 1;
+			return true;
+		}
+	}
+
+	if(dir = 0){#down - y increases
+		if(getValue(mx[i], my[i]+1) = air & ~hasMonster(mx[i], my[i]+1)){
+			my[i] <- my[i] + 1;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+proc moveMonsterLeft(int i){
+	#check left
+	if(tryMove(i, roundSub(mdir[i]))){
+		mdir[i] <- roundSub(mdir[i]);
+		return;
+	}
+	#check front
+	if(tryMove(i, mdir[i])){
+		return;
+	}
+	#check right
+	if(tryMove(i, roundAdd(mdir[i]))){
+		mdir[i] <- roundAdd(mdir[i]);
+		return;
+	}
+	#check back
+	int dir;
+	dir <-  roundAdd(mdir[i]);
+	if(tryMove(i, roundAdd(dir))){
+		mdir[i] <- roundAdd(dir);
+		return;
+	}
+	return;
+}
+
+proc moveMonsterRight(int i){
+	#check right
+	if(tryMove(i, roundAdd(mdir[i]))){
+		mdir[i] <- roundAdd(mdir[i]);
+		return;
+	}
+	#check front
+	if(tryMove(i, mdir[i])){
+		return;
+	}
+	#check left
+	if(tryMove(i, roundSub(mdir[i]))){
+		mdir[i] <- roundSub(mdir[i]);
+		return;
+	}
+	#check back
+	int dir;
+	dir <-  roundAdd(mdir[i]);
+	if(tryMove(i, roundAdd(dir))){
+		mdir[i] <- roundAdd(dir);
+		return;
+	}
+	return;
+}
+
+
+
+proc moveMonsters(){
+	int i <- 0;
+	while i < mx.length do {
+		if(mpath[i] = 0){
+			moveMonsterLeft(i);
+		}else{
+			moveMonsterRight(i);
+		}
+		i <- i + 1;
+	}
+	return;
+}
+
+proc updateMonsterPaths(){
+	int i <- 0;
+	while i < mx.length do {
+		int div;
+		div <- stepCounter / mChange[i];
+		if( div * mChange[i] = stepCounter){
+			mpath[i] <- (mpath[i]-1) * (mpath[i]-1);
+		}
+		i <- i + 1;
+	}
+	return;
+}
+
+proc handleBulletMove(){
+	if(bdir = 3){#right - x increases
+		bx <- bx + 1;
+	}
+
+	if(bdir = 2){#up - y decreases
+		by <- by - 1;
+	}
+
+	if(bdir = 1){#left - x decreases
+		bx <- bx - 1;
+	}
+
+	if(bdir = 0){#down - y increases
+		by <- by + 1;
+	}
+	return;
+}
+
+proc handleBulletHit(){
+	if(getValue(bx, by) ~= air){#hit a wall
+		bx <- 0;
+		by <- 0;
+		bdir <- 10;
+	}
+	if(hasMonster(bx, by)){#hit a monster
+		int i <- 0;
+		while i < mx.length do {
+			if( bx = mx[i] & by = my[i]){
+				mAlive[i] <- false;
+			}
+			i <- i + 1;
+		}
+		bx <- 0;
+		by <- 0;
+		bdir <- 10;
+	}
+	return;
+}
+
+proc handleShoot(){
+	if(bdir ~= 10){#bullet is already spawned in
+		return;
+	}
+	bdir <- pdir;
+	if(pdir = 3){#right - x increases
+		bx <- px + 1;
+		by <- py;
+	}
+
+	if(pdir = 2){#up - y decreases
+		by <- py - 1;
+		bx <- px;
+	}
+
+	if(pdir = 1){#left - x decreases
+		bx <- px - 1;
+		by <- py;
+	}
+
+	if(pdir = 0){#down - y increases
+		by <- py + 1;
+		bx <- px;
+	}
+	return;
+}
+
+
+proc handleMove(){
+	if(pdir = 3){#right - x increases
+		if(getValue(px + 1, py) = air){
+			px <- px + 1;
+		}
+	}
+
+	if(pdir = 2){#up - y decreases
+		if(getValue(px, py-1) = air){
+			py <- py - 1;
+		}
+	}
+
+	if(pdir = 1){#left - x decreases
+		if(getValue(px - 1, py) = air){
+			px <- px - 1;
+		}
+	}
+
+	if(pdir = 0){#down - y increases
+		if(getValue(px, py+1) = air){
+			py <- py + 1;
+		}
+	}
+	return;
+}
+
+proc handleInput(){
+
+	int input;
+	input <- in();
+	if(input = 3){
+		pdir <- pdir + 1;
+		if(pdir = 4){
+			pdir <- 0;
+		}
+	}
+
+	if(input = 2){
+		handleMove();
+	}
+
+	if(input = 1){
+		pdir <- pdir - 1;
+		if(pdir = -1){
+			pdir <- 3;
+		}
+	}
+
+	if(input = 0){
+		handleShoot();
+	}
+
+	if(input = 69){
+		int i <- 0;
+		while i < mx.length do {
+			mAlive[i] <- false;
+			i <- i + 1;
+		}
+	}
+
+	if(input = 99){
+		done <- true;
+	}
+
+	return;
+}
+
+proc checkEnd(){
+	if( hasMonster(px, py) | hasMonster(px+1, py) | hasMonster(px-1, py) | hasMonster(px, py+1) | hasMonster(px, py-1) ){
+		done <- true;
+		dead <- true;
+	}else{
+		int i <- 0;
+		while i < mx.length do {
+			if(mAlive[i]){
+				return;
+			}
+			i <- i + 1;
+		}
+		done <- true;
+		won <- true;
+	}
+	return;
+}
+
+int func program(){
+	makeMap();
+	makeMonsters();
+	print("1- turn left, 2- move forward, 3- turn right, 0- shoot, 99- exit, other- wait");
+	outChar(newLine);
+	while ~done do {
+		stepCounter <- stepCounter + 1;
+		printMap();
+		handleBulletMove();
+		handleInput();
+		handleBulletHit();
+		moveMonsters();
+		handleBulletHit();
+		updateMonsterPaths();
+		checkEnd();#check if player is dead or won
+	}
+	printMap();
+	if(won){
+		print("You Won!");
+	}
+	if(dead){
+		print("You Lost :(");
+	}
+
+	return 2;
+}

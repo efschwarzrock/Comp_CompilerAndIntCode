@@ -1,0 +1,46 @@
+
+extern proc outChar(int out);
+extern int func in();
+extern proc print(str s);
+
+
+proc outInt(int i){
+	int restOfNumber;
+	restOfNumber <- i;
+	if(i < 0){
+		outChar(45);
+		restOfNumber <- restOfNumber*-1;
+	}
+	if(i = 0){
+		outChar(48);
+		return;
+	}
+	int digit;
+	int largers;
+	int reverse <- 0;
+	int size <- 0;
+	while (restOfNumber > 0) do {
+		largers <- (restOfNumber/10)*10;
+		digit <- restOfNumber-largers;			
+		restOfNumber <- restOfNumber/10;
+		reverse <- reverse*10 + digit;
+		size <- 1 + size;
+	}
+	restOfNumber <- reverse;
+	while (size > 0) do {
+		largers <- (restOfNumber/10)*10;
+		digit <- restOfNumber-largers;			
+		restOfNumber <- restOfNumber/10;
+		digit <- digit + 48;
+		outChar(digit);
+		size <- size - 1;
+	}
+	return;
+}
+
+str func program(){
+	int x;
+	x <- in();
+	outInt(x);
+	return "ddd";
+}

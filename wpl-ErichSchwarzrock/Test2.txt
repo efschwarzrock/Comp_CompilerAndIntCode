@@ -1,0 +1,11 @@
+extern int func in();
+extern proc outInt(int out);
+
+
+int func program(){
+	int x;
+	x <- in();
+	outInt(x);
+	
+	return 5;
+}

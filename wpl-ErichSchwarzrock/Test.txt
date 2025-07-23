@@ -1,0 +1,324 @@
+extern proc print(str f);
+
+
+int globalVar <- 5;
+
+
+
+int func intf(){
+    return 3;
+}
+
+boolean func boolf(int x, boolean f, str w){
+    if ~( x = 32 & f ) then {
+        print("Error func");
+    }
+    return true;
+}
+
+
+str func strf(){
+    return "string exmpl";
+}
+
+proc testProc(int x, boolean f, str w){
+    if ~( x = 32 & f ) then {
+        print("Error func");
+    }
+    globalVar <- 3;
+    return;
+}
+
+proc testProc2(){
+
+    globalVar <- 320;
+    return;
+}
+
+
+int func program(){
+
+    int anInt <- 32;
+    str aString;
+    boolean aBoolean;
+    var a, b;
+    b <- 1;
+    a <- b;
+    aBoolean <- a = b & a = 1;
+    if ~aBoolean then {
+        print("Error 1");
+    }
+    int a1 <- 1, b1, c1 <- 2;
+    boolean a2 <- true, b2 <- false;
+    if ~(a2 & ~b2 & a1 = 1 & c1 = 2) then {
+        print("Error 2");
+    }
+    int[5] arr;
+    if ~(arr.length = 5) then {
+        print("Error 3");
+    }
+    a <- 2 + 4 * 10;
+    if ~(a = 42) then {
+        print("Error 4");
+    }
+
+    a <- 2 + 2/2;
+    if ~(a = 3) then {
+        print("Error 4.3");
+    }
+
+    a <- 2 - 2/2;
+    if ~(a = 1) then {
+        print("Error 4.6");
+    }
+
+    int sum <- 1, i <- 0;
+    while i < 5 do {
+        sum <- sum * 2;
+        i <- i + 1;
+    }
+
+    if ~(i = 5 & sum = 32) then {
+        print("Error 5");
+    }
+
+    int sum2 <- 1, i2 <- 0, j2 <- 0;
+    while i2 < 5 do {
+        j2 <- 0;
+        while j2 < 5 do {
+            sum2 <- sum2 + 2;
+            j2 <- j2 + 1;
+        }
+        i2 <- i2 + 1;
+    }
+
+    if ~(i2 = 5 & j2 = 5 & sum2 = 51) then {
+        print("Error 5 ");
+    }
+
+    int ifvar <- 0;
+    if true then {
+        ifvar <- ifvar + 1;
+    }
+
+    if false then {
+        ifvar <- ifvar + 1;
+    }
+
+    if true then {
+        ifvar <- ifvar + 10;
+    }else{
+        ifvar <- ifvar + 20;
+    }
+
+    if false then {
+        ifvar <- ifvar + 100;
+    }else{
+        ifvar <- ifvar + 200;
+    }
+
+    if ~(ifvar = 211) then {
+        print("Error 6");
+    }
+
+    int x, sign1, sign2, sign3;
+    x <- -1;
+    select {
+        x < 0 : sign1 <- -1;
+        x = 0 : sign1 <- 0;
+        x > 0 : sign1 <- 7;
+    }
+    x <- 0;
+    select {
+        x < 0 : sign2 <- -1;
+        x = 0 : sign2 <- 0;
+        x > 0 : sign2 <- 1;
+    }
+    x <- 10;
+    select {
+        x < 0 : sign3 <- -1;
+        x = 0 : sign3 <- 0;
+        x > 0 : sign3 <- 1;
+    }
+
+    if ~(sign1 = -1 & sign2 = 0 & sign3 = 1) {
+        print("Error 7");
+    }
+
+
+    int f1;
+    f1 <- intf();
+    boolean f2;
+
+    f2 <- boolf(anInt, true, strf());
+
+
+
+    str s;
+
+    s <- strf();
+
+    if ~(f1 = 3 & f2) {
+        print("Error 8");
+    }
+
+    if ~(globalVar = 5) {
+        print("Error 9");
+    }
+
+    testProc(anInt, true, "we");
+
+    if ~(globalVar = 3) {
+        print("Error 10");
+    }
+
+    testProc2();
+
+    if ~(globalVar = 320) {
+        print("Error 11");
+    }
+
+    int blockTest <- 5;
+    {
+        int blockTest <- 7;
+        if ~(blockTest = 7) {
+            print("Error 12a");
+        }
+    }
+
+    if ~(blockTest = 5) {
+            print("Error 12b");
+    }
+
+    if 1 ~= 1 then {
+        print("Error ~= F");
+    }
+
+    if ~(1 ~= 2) then {
+        print("Error ~= T");
+    }
+
+    if ~true then {
+        print("Error ~ F");
+    }
+
+    if ~( ~false) then {
+        print("Error ~ T");
+    }
+
+    if 1 = 2 then {
+        print("Error = F");
+    }
+
+    if ~(1 = 1) then {
+        print("Error = T");
+    }
+
+    if 1 > 1 then {
+        print("Error > F");
+    }
+
+    if ~(1 > 0) then {
+        print("Error > T");
+    }
+
+    if 1 < 1 then {
+        print("Error < F");
+    }
+
+    if ~(1 < 2) then {
+        print("Error < T");
+    }
+
+    if 1 >= 2 then {
+        print("Error >= F");
+    }
+
+    if ~(1 >= 1) then {
+        print("Error >= T");
+    }
+
+    if 1 <= 0 then {
+        print("Error <= F");
+    }
+
+    if ~(1 <= 1) then {
+        print("Error <= T");
+    }
+
+    if ~(true & true) then {
+        print("Error & TT");
+    }
+
+    if true & false then {
+        print("Error & TF");
+    }
+
+    if false & true then {
+        print("Error & FT");
+    }
+
+    if false & false then {
+        print("Error & FF");
+    }
+
+    if ~(true | true) then {
+        print("Error | TT");
+    }
+
+    if ~(true | false) then {
+        print("Error | TF");
+    }
+
+    if ~(false | true) then {
+        print("Error | FT");
+    }
+
+    if false | false then {
+        print("Error | FF");
+    }
+
+    if ~(true | false & false) then {
+        print("Error |& FF");
+    }
+
+    if ~(false & false | true) then {
+        print("Error &| FF");
+    }
+
+    if false & (false | true) then {
+        print("Error () FF");
+    }
+
+    if 2 + 3 * 7 ~= 23 then {
+        print("Error +*");
+    }
+
+    if (2 + 3) * 7 ~= 35 then {
+        print("Error ()+*");
+    }
+
+    if 2 * 3 + 7 ~= 13 then {
+        print("Error *+");
+    }
+
+    if 2 * (3 + 7) ~= 20 then {
+        print("Error ()*+");
+    }
+
+    x <- arr[2];
+    if arr[2+1] = 3 then {
+        print("Error eql");
+    }
+
+    x <- 3;
+    arr[x] <- 3;
+    if ~(arr[3] = 3) then {
+        print("Error not eql");
+    }
+
+    print("Ran");
+    return 5;
+
+}
+
