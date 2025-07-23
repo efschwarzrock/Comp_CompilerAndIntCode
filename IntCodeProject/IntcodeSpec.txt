@@ -1,0 +1,97 @@
+An Intcode program is a list of integers separated by commas (like 1,0,0,3,99). 
+To run one, start by looking at the first integer (called position 0). 
+Here, you will find an opcode - either 1, 2, or 99. The opcode indicates what to do.
+Once you're done processing an opcode, move to the next one by stepping forward 1 + numAgs positions.
+
+(For syntax leading 0s can be dropped)
+01 - add
+	Sytax - 01, &a, &b, &c 
+	Operation in C - c = a + b;
+	adds together numbers read from two positions and stores the result in a third position. 
+	The three integers immediately after the opcode tell you these three positions - 
+	the first two indicate the positions from which you should read the input values, 
+	and the third indicates the position at which the output should be stored.
+
+02 - multiply
+	Syntax - 02, &a, &b, &c
+	Operation in C - c = a*b;
+	works exactly like opcode 1, except it multiplies the two inputs instead of adding them
+
+03 - input 
+	Syntax - 03, &a
+	Operation in C - scanf("%d", &a);
+	takes a single integer as input and saves it to the position given by its only parameter. 
+	For example, the instruction 3,50 would take an input value and store it at address 50.
+
+04 - output 
+	Syntax - 04, &a
+	Operation in C - printf((char)a);
+	Opcode 4 outputs the value of its only parameter. 
+	For example, the instruction 4,50 would output the value at address 50.
+
+05 - jump-if-true
+	syntax - 05, &a, &b
+	Operation in C - if(a != 0){instructionPtr = b;}else{instructionPtr += 3;}
+	Opcode 5 is jump-if-true: if the first parameter is non-zero, it sets the instruction pointer 
+	to the value from the second parameter. Otherwise, it does nothing.
+
+06 - jump-if-false
+	syntax - 06, &a, &b
+	Operation in C - if(a == 0){instructionPtr = b;}else{instructionPtr += 3;}
+	Opcode 6 is jump-if-false: if the first parameter is zero, it sets the instruction pointer 
+	to the value from the second parameter. Otherwise, it does nothing.
+
+07 - less than
+	syntax - 07, &a, &b, &c
+	Operation in C - if(a < b){c = 1;}else{c = 0;}
+	Opcode 7 is less than: if the first parameter is less than the second parameter, 
+	it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
+
+08 - equal to
+	syntax - 08, &a, &b, &c
+	Operation in C - if(a = b){c = 1;}else{c = 0;}
+	Opcode 8 is equals: if the first parameter is equal to the second parameter, 
+	it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
+
+09 - add to relative base
+	Syntax - 09 &a
+	Operation in C - relative_base += a
+	adjusts the relative base by the value of its only parameter. The relative 
+	base increases (or decreases, if the value is negative) by the value of the parameter.
+
+99 - end program
+	Syntax - 99
+
+
+//My added opcodes to make my life a little easier
+12 - divide
+	Syntax - 12, &a, &b, &c
+	Operation in C - c = a/b;
+	it divides the two inputsusing int division, because I don't 
+	know how to implement division with just add and multiply comands
+
+The opcodes also suport type changing of perameters, like so.  An opcode is acutaly in the form of
+ABCDE where DE is the code(01,02,03, ect.) and ABC is the type of the 3rd, 2nd and 1st perameter,
+resepectivly. 0 is of type pointer, 1 is of type int(so use the value it's self), and 2 is of type pointer
+but it uses the relative pointer.
+For example the code (00102, 6, 3, 5, 99, 2) will set 2 to 6 * 5 and then exit. Because the opcode 00102 
+set the first perameter to be of type int because of the 1 in position 3, so we use 6 instead of the 
+value in adress 6.
+
+Example Syntax to make this more clear
+say we have opcode 55 which outputs the square of the first perameter.
+
+IntCode - Syntax in C
+055, a  - Printf((char) ((*a)*(*a)));
+155, a  - Printf((char) ((a)*(a)));
+255, a  - Printf((char) ((*(a + relative_base))*(*(a + relative_base)))); 
+where relative_base is a global variable which starts at 0 but can be modified by opcode 9
+with type 2, a can be negative
+
+*Leading 0s can be dropped from the opcode int, and if there isn't 3 parameters
+
+Intcode also suports virtual memory, so if we try to set a value  to an adress that is out of range it will 
+still work, exp (11001, 6, 4, 20, 99) we will still put 6+4 in adress 20, even though the code only goes up to
+adress 5.
+
+	

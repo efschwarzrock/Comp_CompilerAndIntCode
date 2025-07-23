@@ -1,0 +1,42 @@
+FUNCTION STUFF
+declare i32 @printf(i8*, ...)									- extern func
+define i32 @intf() {										- function
+}													- end func
+entry:												- function/block start
+bTrue:                                            ; preds = %entry		- ^^^^ I think I don't need to worry about preds
+ret i32 3												- return
+%13 = call i32 (i8*, ...) @printf()								- call extern func
+i8* getelementptr inbounds ([13 x i8], [13 x i8]* @2, i32 0, i32 0)		- extern func params
+%178 = call i32 @boolf(i32 %anInt90, i32 1, i8* %177)					- call intern func
+
+VARIABLE STUFF
+%x = alloca i32, align 4									- declare var
+@0 = private unnamed_addr constant [13 x i8] c"\22Error func\22\00", align 1 	- string
+@globalVar = dso_local global i32 5 							- global var
+store i32 %0, i32* %x, align 4								- store val in variable
+%x1 = load i32, i32* %x, align 4								- load var
+ret i8* getelementptr inbounds ([15 x i8], [15 x i8]* @1, i32 0, i32 0)		- string var
+
+OPERATIONS
+%7 = and i1 %5, %6										- and
+%4 = or i1 %2, %3											- or
+%10 = xor i1 %9, true										- not
+%3 = icmp eq i32 %x1, 32									- is eql
+%10 = icmp slt i32 1, 1										- <
+%10 = icmp sle i32 1, 1										- <=
+%10 = icmp sgt i32 1, 1										- >
+%10 = icmp sge i32 1, 1										- >=
+%4 = zext i1 %3 to i32										- bool to int
+%5 = trunc i32 %4 to i1										- into to bool
+%44 = mul nsw i32 4, 10										- multiply
+%53 = sdiv i32 2, 2										- divide
+%45 = add nsw i32 2, %44									- add
+%63 = sub nsw i32 2, %62									- subtract
+
+CONDITIONAL STUFF
+br i1 %12, label %bTrue, label %bContinue							- if jump to code
+br label %bContinue										- jump to code
+
+
+
+
